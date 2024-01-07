@@ -28,7 +28,7 @@ defmodule SeedMaps do
     Enum.filter(section, &(!String.contains?(&1, "map:")))
     |> Enum.map(&parse_line_of_ints/1)
     |> Enum.map(fn [destination_start, source_start, range_length] ->
-      {source_start..(source_start + range_length), destination_start - source_start}
+      {source_start..(source_start + range_length - 1), destination_start - source_start}
     end)
   end
 
@@ -61,32 +61,56 @@ defmodule Day5 do
       String.split(file_text, "\n\n")
       |> Enum.map(&String.split(&1, "\n"))
       |> SeedMaps.parse_sections()
-      |> reduce_seed_ranges()
+      |> find_lowest_seed_from_ranges()
     end
   end
 
-  defp ranges_from_list_of_ints(list_of_ints) do
+  @tasks 10
+  defp find_lowest_seed_from_ranges(%SeedMaps{maps: maps, seeds: seeds}) do
+    seed_ranges = seed_ranges_from_list_of_ints(seeds)
+
+    Enum.map(1..@tasks, fn int -> int..10_000_000_000//@tasks end)
+    |> Task.async_stream(
+      &Enum.find(
+        &1,
+        nil,
+        fn int ->
+          reverse_map_lookup_reduce(int, maps)
+          |> any_range_contains_int?(seed_ranges)
+        end
+      ), timeout: :infinity
+    )
+    |> Enum.map(fn {:ok, result} -> result end)
+    |> Enum.min()
+  end
+
+  @spec reverse_map_lookup_reduce(integer(), list({Range.t(), integer()})) :: integer()
+  defp reverse_map_lookup_reduce(value, maps) do
+    Enum.reduce(Enum.reverse(maps), value, fn map, acc ->
+      {_, offset} =
+        Enum.find(map, {:nothing, 0}, fn {range, offset} -> acc in Range.shift(range, offset) end)
+
+      acc - offset
+    end)
+  end
+
+  defp seed_ranges_from_list_of_ints(list_of_ints) do
     case list_of_ints do
       [first, second | rest] ->
-        first..second |> Stream.concat(ranges_from_list_of_ints(rest))
+        [first..(first + second - 1) | seed_ranges_from_list_of_ints(rest)]
 
       [] ->
         []
     end
   end
 
-  @spec reduce_seed_ranges(%SeedMaps{}) :: integer()
-  defp reduce_seed_ranges(%SeedMaps{maps: maps, seeds: seeds}) do
-    all_seeds = ranges_from_list_of_ints(seeds)
-
-    reduce_seeds(%SeedMaps{seeds: all_seeds, maps: maps})
+  defp any_range_contains_int?(int, ranges) when is_integer(int) and is_list(ranges) do
+    Enum.any?(ranges, &(int in &1))
   end
 
   @spec reduce_seeds(%SeedMaps{}) :: integer()
   defp reduce_seeds(%SeedMaps{maps: maps, seeds: seeds}) do
     Stream.map(seeds, fn seed ->
-      IO.inspect(seed)
-
       Enum.reduce(maps, seed, fn map, acc ->
         {_, offset} = Enum.find(map, {:nothing, 0}, &(acc in elem(&1, 0)))
         acc + offset
