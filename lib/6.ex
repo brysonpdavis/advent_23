@@ -24,6 +24,7 @@ defmodule Day6 do
     end
   end
 
+  @spec find_num_winning_strategies_for_race({integer(), integer()}) :: integer()
   defp find_num_winning_strategies_for_race({time, dist})
        when is_integer(time) and is_integer(dist) do
 
@@ -31,6 +32,7 @@ defmodule Day6 do
     |> Enum.count()
   end
 
+  @spec time_held_is_winning?(integer(), integer(), integer()) :: boolean()
   defp time_held_is_winning?(time, dist, ms_held) do
     time_remaining = time - ms_held
     speed = ms_held
@@ -45,6 +47,7 @@ defmodule Day6 do
     |> Enum.zip()
   end
 
+  @spec parse_one_time_and_distance_from_file_string(String.t()) :: {integer(), integer()}
   defp parse_one_time_and_distance_from_file_string(file_string) do
     String.split(file_string, "\n", trim: true)
     |> Enum.map(fn line ->
