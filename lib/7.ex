@@ -106,14 +106,15 @@ defmodule Day7 do
   end
 
   @priorities ["2", "3", "4", "5", "6", "7", "8", "9", "T", "J", "Q", "K", "A"]
-  @new_priorities ["J", "2", "3", "4", "5", "6", "7", "8", "9", "T", "Q", "K", "A"]
 
   defp get_priority(card) do
     Enum.find_index(
       @priorities,
       &(&1 == card)
-    )
-  end
+      )
+    end
+
+  @new_priorities ["J", "2", "3", "4", "5", "6", "7", "8", "9", "T", "Q", "K", "A"]
 
   defp get_priority_new(card) do
     Enum.find_index(
