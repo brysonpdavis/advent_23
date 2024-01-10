@@ -26,18 +26,17 @@ defmodule Coord do
     %Coord{x: x, y: y}
   end
 
-  def are_adjacent?(%Coord{x: x, y: y}, %Coord{x: xx, y: yy})
-      when is_integer(x) and is_integer(y) and is_integer(xx) and is_integer(yy) do
+  def are_adjacent?(%Coord{x: x, y: y}, %Coord{x: xx, y: yy}) do
     abs(x - xx) <= 1 and abs(y - yy) <= 1
-  end
-
-  defp add_x(%Coord{x: x, y: y}, x_add) when is_integer(x) and is_integer(y) and is_integer(x_add) do
-    %Coord{x: x + x_add, y: y}
   end
 
   def are_adjacent?(coord1, coord2, length)
       when is_struct(coord1, Coord) and is_struct(coord2, Coord) and is_integer(length) do
     Enum.reduce(0..length, false, fn x_add, acc -> are_adjacent?(coord1, add_x(coord2, x_add)) or acc end)
+  end
+
+  defp add_x(%Coord{x: x, y: y}, x_add) when is_integer(x) and is_integer(y) and is_integer(x_add) do
+    %Coord{x: x + x_add, y: y}
   end
 end
 
@@ -50,10 +49,10 @@ defmodule Day3 do
     |> Enum.with_index(&gather_numbers_in_row(&1, [], [], 0, &2) |> Enum.reverse())
     |> List.flatten()
     |> Enum.filter(fn %PartNumber{length: l, coord: coord} ->
-      Enum.any?(alternate_symbols_coords, &Coord.are_adjacent?(&1, coord, l))
+      Enum.any?(alternate_symbols_coords, &Coord.are_adjacent?(elem(&1, 1), coord, l))
     end)
     # |> length()
-    # |> Enum.map(&(&1.value)) |> Enum.sum()
+    |> Enum.map(&(&1.value)) |> Enum.sum()
   end
 
   defp read_file do
