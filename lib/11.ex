@@ -1,7 +1,8 @@
 defmodule Day11 do
   def part_1 do
-    grid = read_file()
-    |> parse_into_grid()
+    grid =
+      read_file()
+      |> parse_into_grid()
 
     empty_row_idxs = find_empty_row_idxs(grid)
     empty_col_idxs = find_empty_row_idxs(transpose(grid))
@@ -13,8 +14,9 @@ defmodule Day11 do
   end
 
   def part_2 do
-    grid = read_file()
-    |> parse_into_grid()
+    grid =
+      read_file()
+      |> parse_into_grid()
 
     empty_row_idxs = find_empty_row_idxs(grid)
     empty_col_idxs = find_empty_row_idxs(transpose(grid))
@@ -26,11 +28,14 @@ defmodule Day11 do
   end
 
   defp find_empty_row_idxs(grid) do
-    Enum.with_index(grid, fn row, idx ->
+    indexes_of_empty_or_nil = fn row, idx ->
       case empty_row?(row) do
         true -> idx
-        false -> nil end
-      end)
+        false -> nil
+      end
+    end
+
+    Enum.with_index(grid, indexes_of_empty_or_nil)
     |> Enum.filter(&(&1 != nil))
   end
 
@@ -42,7 +47,10 @@ defmodule Day11 do
     less_than_rows_count = length(Enum.filter(empty_row_idxs, &(&1 < row)))
     less_than_cols_count = length(Enum.filter(empty_col_idxs, &(&1 < col)))
 
-    {row + ((multiplier - 1) * less_than_rows_count), col + ((multiplier - 1) * less_than_cols_count)}
+    {
+      row + (multiplier - 1) * less_than_rows_count,
+      col + (multiplier - 1) * less_than_cols_count
+    }
   end
 
   defp parse_into_grid(file_str) do
