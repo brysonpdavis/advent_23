@@ -2,30 +2,30 @@ defmodule Day13 do
   def part1 do
     read_file()
     |> parse_file_into_sections()
-    |> transpose_all_sections()
     |> Enum.map(&find_horizontal_and_vertical_reflection_points/1)
-    |> IO.inspect()
-    |> Enum.map(fn {r1, r2} -> r1 + r2 * 100 end)
-    |> Enum.sum()
+    |> summarize()
   end
 
   def part2 do
     read_file()
     |> parse_file_into_sections()
-    |> transpose_all_sections()
     |> Enum.map(
       &find_horizontal_and_vertical_reflection_points(
         &1,
         fn l -> find_reflection_point_in_section_with_smudge(l) end
       )
     )
-    |> IO.inspect()
-    |> Enum.map(fn {r1, r2} -> r1 + r2 * 100 end)
-    |> Enum.sum()
+    |> summarize()
   end
 
   defp read_file do
     File.read!("lib/13.txt")
+  end
+
+  defp summarize(list_of_tuples) do
+    list_of_tuples
+    |> Enum.map(fn {r1, r2} -> r2 + r1 * 100 end)
+    |> Enum.sum()
   end
 
   defp parse_file_into_sections(file_string) do
@@ -41,11 +41,6 @@ defmodule Day13 do
     rows
     |> List.zip()
     |> Enum.map(&Tuple.to_list/1)
-  end
-
-  defp transpose_all_sections(sections) do
-    sections
-    |> Enum.map(&transpose_2d_array/1)
   end
 
   defp find_horizontal_and_vertical_reflection_points(
