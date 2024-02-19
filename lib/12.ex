@@ -8,6 +8,35 @@ defmodule Day12 do
     |> length()
   end
 
+  def part2 do
+    read_file()
+    |> parse_file_into_char_lists()
+    |> expand()
+
+    # |> find_permutations()
+    |> trim_starting_dots_from_all()
+    |> filter_impossible_conditions()
+    |> length()
+  end
+
+  defp expand(list) do
+    list
+    |> Enum.map(fn {damaged_conditions, correct_conditions} ->
+      expanded_damaged_conditions =
+        damaged_conditions
+        |> List.duplicate(5)
+        |> Enum.intersperse("?")
+        |> List.flatten()
+
+      expanded_correct_conditions =
+        correct_conditions
+        |> List.duplicate(5)
+        |> List.flatten()
+
+      {expanded_damaged_conditions, expanded_correct_conditions}
+    end)
+  end
+
   defp read_file do
     File.read!("lib/12.txt")
   end
